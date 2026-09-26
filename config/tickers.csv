@@ -66,3 +66,46 @@ M00IMVSO Index,MSCI USA Minimum Volatility Daily Net USD,minvol,NA,primary,histo
 NDUGE15 Index,MSCI Europe Growth Net USD,growth_style,EME,primary,standard (non-IMI) growth; longer history than MGIUEURN
 NDUVE15 Index,MSCI Europe Value Net USD,value_style,EME,robustness,style value; check vs Enhanced Value
 M1PC000V Index,MSCI Pacific Value Net USD,value_style,PAC,robustness,style value
+MXNA0EN Index,MSCI North America Energy USD,sector,NA,primary,price return
+MXNA0MT Index,MSCI North America Materials USD,sector,NA,primary,price return
+MXNA0IN Index,MSCI North America Industrials USD,sector,NA,primary,price return
+MXNA0CD Index,MSCI North America Consumer Discretionary USD,sector,NA,primary,price return
+MXNA0CS Index,MSCI North America Consumer Staples USD,sector,NA,primary,price return
+MXNA0HC Index,MSCI North America Health Care USD,sector,NA,primary,price return
+MXNA0FN Index,MSCI North America Financials USD,sector,NA,primary,price return
+MXNA0IT Index,MSCI North America Information Technology USD,sector,NA,primary,price return
+MXNA0TC Index,MSCI North America Communication Services USD,sector,NA,primary,price return
+MXNA0UT Index,MSCI North America Utilities USD,sector,NA,primary,price return
+MXNA0RL Index,MSCI North America Real Estate USD,sector,NA,primary,price return; starts 2016-08 (inside Financials before)
+MXEU0EN Index,MSCI Europe Energy USD,sector,EME,primary,price return
+MXEU0MT Index,MSCI Europe Materials USD,sector,EME,primary,price return
+MXEU0IN Index,MSCI Europe Industrials USD,sector,EME,primary,price return
+MXEU0CD Index,MSCI Europe Consumer Discretionary USD,sector,EME,primary,price return
+MXEU0CS Index,MSCI Europe Consumer Staples USD,sector,EME,primary,price return
+MXEU0HC Index,MSCI Europe Health Care USD,sector,EME,primary,price return
+MXEU0FN Index,MSCI Europe Financials USD,sector,EME,primary,price return
+MXEU0IT Index,MSCI Europe Information Technology USD,sector,EME,primary,price return
+MXEU0TC Index,MSCI Europe Communication Services USD,sector,EME,primary,price return
+MXEU0UT Index,MSCI Europe Utilities USD,sector,EME,primary,price return
+MXEU0RL Index,MSCI Europe Real Estate USD,sector,EME,primary,price return; starts 2016-08 (inside Financials before)
+MXPC0EN Index,MSCI Pacific Energy USD,sector,PAC,primary,price return
+MXPC0MT Index,MSCI Pacific Materials USD,sector,PAC,primary,price return
+MXPC0IN Index,MSCI Pacific Industrials USD,sector,PAC,primary,price return
+MXPC0CD Index,MSCI Pacific Consumer Discretionary USD,sector,PAC,primary,price return
+MXPC0CS Index,MSCI Pacific Consumer Staples USD,sector,PAC,primary,price return
+MXPC0HC Index,MSCI Pacific Health Care USD,sector,PAC,primary,price return
+MXPC0FN Index,MSCI Pacific Financials USD,sector,PAC,primary,price return
+MXPC0IT Index,MSCI Pacific Information Technology USD,sector,PAC,primary,price return
+MXPC0TC Index,MSCI Pacific Communication Services USD,sector,PAC,primary,price return
+MXPC0UT Index,MSCI Pacific Utilities USD,sector,PAC,primary,price return
+MXPC0RL Index,MSCI Pacific Real Estate USD,sector,PAC,primary,price return; starts 2016-08 (inside Financials before)
+MXNA Index,MSCI North America USD (price),parent_px,NA,check,validates sector weights and dividend add-back
+MXEU Index,MSCI Europe USD (price),parent_px,EME,check,validates sector weights and dividend add-back
+MXPC Index,MSCI Pacific USD (price),parent_px,PAC,check,validates sector weights and dividend add-back
+M1NA Index,MSCI North America Net USD,parent_net,NA,check,net-return benchmark for the price + dividend-yield approximation
+NDDUE15 Index,MSCI Europe Net USD,parent_net,EME,check,net-return benchmark for the price + dividend-yield approximation
+NDDUP Index,MSCI Pacific Net USD,parent_net,PAC,check,net-return benchmark for the price + dividend-yield approximation
+NDRUIT Index,MSCI Europe Information Technology Net USD,parent_net,EME,check,net-return benchmark for the price + dividend-yield approximation
+NDRUFNCL Index,MSCI Europe Financials Net USD,parent_net,EME,check,net-return benchmark for the price + dividend-yield approximation
+NDRUHC Index,MSCI Europe Health Care Net USD,parent_net,EME,check,net-return benchmark for the price + dividend-yield approximation
+NDRUUTI Index,MSCI Europe Utilities Net USD,parent_net,EME,check,net-return benchmark for the price + dividend-yield approximation
