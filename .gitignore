@@ -1,4 +1,6 @@
-# Environment
+# Environment and secrets (API keys live in .env or user env vars, never in git)
+.env
+.env.*
 .venv/
 __pycache__/
 *.pyc
