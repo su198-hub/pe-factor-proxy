@@ -1,12 +1,14 @@
 """Pull every ticker in config/tickers.csv from Bloomberg and cache to data/bbg/.
 
 Writes one long-format parquet per dataset (ticker, date, value) plus a manifest.
-Datasets: PX_LAST weekly and monthly for every ticker; trailing 12m dividend yield
-monthly for the sector and price-return parent indexes (used to turn their price
-returns into approximate total returns).
+Datasets: PX_LAST weekly and monthly for every ticker; for the sector and
+price-return parent indexes, monthly trailing 12m dividend yield (turns price returns
+into approximate total returns) and trailing / forward P/E (valuation decomposition).
 
-Every series is pulled in USD: tickers quoted in another currency (e.g. MXEU, in EUR)
-get Bloomberg's currency override, and are listed in the manifest.
+Every price series is pulled in USD: tickers quoted in another currency (e.g. MXEU,
+in EUR) get Bloomberg's currency override, and are listed in the manifest. Macro
+series (yields, spreads, surprise indexes) and local-currency check indexes are
+never converted.
 
 Only tickers not already in the cache are pulled, so adding a ticker to the registry
 costs only that ticker's data points. --refresh re-pulls everything (e.g. to extend
@@ -36,9 +38,12 @@ DATASETS = {
     "px_weekly": ("PX_LAST", "W", None),
     "px_monthly": ("PX_LAST", "M", None),
     "dy_monthly": ("EQY_DVD_YLD_12M", "M", {"sector", "parent_px"}),
+    "pe_monthly": ("PE_RATIO", "M", {"sector", "parent_px"}),
+    "fpe_monthly": ("BEST_PE_RATIO", "M", {"sector", "parent_px"}),
 }
 CHUNK = 20  # tickers per request
 CCY = "USD"
+NO_CONVERT = {"macro", "parent_local"}  # levels / deliberately local: never currency-convert
 
 
 def quote_currency(tickers):
@@ -91,7 +96,8 @@ def main():
         convert = set()
         if field == "PX_LAST":
             ccy = ccy or quote_currency(reg["ticker"].tolist())
-            convert = {t for t in todo if ccy.get(t) not in (CCY, "", None)}
+            keep = set(reg.loc[reg["block"].isin(NO_CONVERT), "ticker"])
+            convert = {t for t in todo if ccy.get(t) not in (CCY, "", None) and t not in keep}
         new = pull(todo, field, per, end, convert)
         df = new if cached is None else pd.concat([cached, new], ignore_index=True)
         df.to_parquet(path, index=False)

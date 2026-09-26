@@ -58,8 +58,8 @@ USGGT10Y Index,US 10y TIPS real yield,macro,US,primary,level (%)
 USGGBE10 Index,US 10y breakeven inflation,macro,US,primary,level (%)
 USGG10YR Index,US 10y Treasury yield,macro,US,primary,level (%)
 FDTR Index,Fed funds target (upper),macro,US,primary,level (%)
-LF98OAS Index,Bloomberg US Corporate High Yield OAS,macro,US,primary,level (bp)
-LUACOAS Index,Bloomberg US Corporate IG OAS,macro,US,primary,level (bp)
+LF98OAS Index,Bloomberg US Corporate High Yield OAS,macro,US,primary,level (%)
+LUACOAS Index,Bloomberg US Corporate IG OAS,macro,US,primary,level (%)
 CESIUSD Index,Citi Economic Surprise Index US,macro,US,primary,level
 VIX Index,CBOE VIX,macro,US,primary,level
 M00IMVSO Index,MSCI USA Minimum Volatility Daily Net USD,minvol,NA,primary,history from 2000; replaces M1USMVC$ (2012)
@@ -109,3 +109,11 @@ NDRUIT Index,MSCI Europe Information Technology Net USD,parent_net,EME,check,net
 NDRUFNCL Index,MSCI Europe Financials Net USD,parent_net,EME,check,net-return benchmark for the price + dividend-yield approximation
 NDRUHC Index,MSCI Europe Health Care Net USD,parent_net,EME,check,net-return benchmark for the price + dividend-yield approximation
 NDRUUTI Index,MSCI Europe Utilities Net USD,parent_net,EME,check,net-return benchmark for the price + dividend-yield approximation
+NDDLNA Index,MSCI North America Net Local,parent_local,NA,check,local-currency net; USD net minus this = currency effect
+NDDLE15 Index,MSCI Europe Net Local,parent_local,EME,check,local-currency net (CRNCY reports USD but series is local)
+NDDLP Index,MSCI Pacific Net Local,parent_local,PAC,check,local-currency net
+CESIG10 Index,Citi Economic Surprise Index G10,macro,World,primary,level
+CESIEUR Index,Citi Economic Surprise Index Eurozone,macro,EME,primary,level
+CESIJPY Index,Citi Economic Surprise Index Japan,macro,PAC,primary,level
+DXY Index,US dollar index,macro,US,primary,level
+GDBR10 Index,Germany 10y Bund yield,macro,EME,primary,level (%)
