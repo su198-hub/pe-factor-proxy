@@ -34,12 +34,16 @@ import numpy as np
 import pandas as pd
 
 from attribution import MARKET_PARTS, market_split
+import argparse
+
 from blocks import BLOCKS, TILTS, block_returns
 from data import ROOT, pert_family, returns
+from pe_core import VARIANTS, component_blocks
 from pert_structure import constrained_weights
 from style_decomp import fit
 
 OUT = ROOT / "output" / "replica"
+MKT = MARKET_PARTS + ["sector_mix"]  # sector_mix: PE Core minus regional IMI (zero for the IMI Core)
 PERT, WORLD_IMI = "MXWOPERT Index", "M1WOIM Index"
 REGIONAL_IMI = {"NA": "M1NAIM Index", "EME": "MIMUEURN Index", "PAC": "M1PCIM Index"}
 REVIEW_MONTHS = (2, 5, 8, 11)
@@ -51,8 +55,7 @@ def weights_at(rw, bw, fam, end=None, window=None):
     """Block weights per component, PERT World and World IMI regional weights, from weekly data up to `end`."""
     out = {}
     for comp, t in fam.items():
-        region = comp.split("_")[0]
-        d = pd.concat([rw[t["net"]].rename("y"), bw[region]], axis=1).loc[START:end].dropna()
+        d = pd.concat([rw[t["net"]].rename("y"), bw[comp]], axis=1).loc[START:end].dropna()
         d = d.iloc[-window:] if window else d
         if len(d) < MIN_WEEKS:
             return None
@@ -86,14 +89,13 @@ def weight_path(rw, bw, fam, months):
 def contributions(W, fam, rm, bm, parts, series):
     """Monthly contributions for PERT-style weights W (rows = months)."""
     idx = W.index
-    c = pd.DataFrame(0.0, index=idx, columns=MARKET_PARTS + TILTS)
+    c = pd.DataFrame(0.0, index=idx, columns=MKT + TILTS)
     for comp in fam:
-        region = comp.split("_")[0]
         cw = W[("pert_cw", comp)]
-        for p in MARKET_PARTS:
-            c[p] += cw * W[(comp, "core")] * parts[region][p].reindex(idx)
+        for p in MKT:
+            c[p] += cw * W[(comp, "core")] * parts[comp][p].reindex(idx)
         for t in TILTS:
-            c[t] += cw * W[(comp, t)] * bm[region][t].reindex(idx)
+            c[t] += cw * W[(comp, t)] * bm[comp][t].reindex(idx)
     replica = c.sum(axis=1)
     c.insert(0, "total", rm[series].reindex(idx) if series else replica)
     c["residual"] = c["total"] - replica
@@ -102,10 +104,10 @@ def contributions(W, fam, rm, bm, parts, series):
 
 def imi_contributions(W, rm, parts):
     idx = W.index
-    c = pd.DataFrame(0.0, index=idx, columns=MARKET_PARTS + TILTS)
+    c = pd.DataFrame(0.0, index=idx, columns=MKT + TILTS)
     for region in REGIONAL_IMI:
         for p in MARKET_PARTS:
-            c[p] += W[("imi_cw", region)] * parts[region][p].reindex(idx)
+            c[p] += W[("imi_cw", region)] * parts[f"{region}_BO"][p].reindex(idx)
     c.insert(0, "total", rm[WORLD_IMI].reindex(idx))
     c["residual"] = c["total"] - c[MARKET_PARTS].sum(axis=1)
     return c
@@ -114,8 +116,7 @@ def imi_contributions(W, rm, parts):
 def component_replicas(W, fam, bm):
     out = {}
     for comp in fam:
-        region = comp.split("_")[0]
-        out[comp] = sum(W[(comp, b)] * bm[region][b].reindex(W.index) for b in BLOCKS)
+        out[comp] = sum(W[(comp, b)] * bm[comp][b].reindex(W.index) for b in BLOCKS)
     return pd.DataFrame(out)
 
 
@@ -132,20 +133,29 @@ def stats(s, ref=None):
 
 
 def main():
-    OUT.mkdir(parents=True, exist_ok=True)
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--core", choices=VARIANTS, default="imi",
+                    help="Core building block: plain regional IMI, or PE sector-matched (see pe_core.py)")
+    core = ap.parse_args().core
+    out = OUT if core == "imi" else OUT.parent / f"replica_{core}"
+    out.mkdir(parents=True, exist_ok=True)
     pd.set_option("display.width", 250)
     fam = pert_family()
     rw, rm = returns("weekly"), returns("monthly")
-    bw, bm = block_returns("weekly")[0], block_returns("monthly")[0]
+    bw, bm = component_blocks(core, "weekly"), component_blocks(core, "monthly")
+    imi_blocks = block_returns("monthly")[0]
     parts = {}
-    for region in REGIONAL_IMI:
+    for comp in fam:
+        region = comp.split("_")[0]
         p, net_t = market_split(region, rm)
-        p["imi_gap"] = bm[region]["core"] - rm[net_t]
-        parts[region] = p
+        p["imi_gap"] = imi_blocks[region]["core"] - rm[net_t]
+        p["sector_mix"] = bm[comp]["core"] - imi_blocks[region]["core"]  # PE sector-matched Core minus IMI
+        parts[comp] = p
+    print(f"Core: {core}")
     months = rm.loc[START:].index
     paths = weight_path(rw, bw, fam, months)
     for k, W in paths.items():
-        W.to_csv(OUT / f"weights_{k}.csv")
+        W.to_csv(out / f"weights_{k}.csv")
 
     common = paths["dynamic"].index  # dynamic starts later; compare on its sample
     series, attrib = {}, {}
@@ -155,7 +165,7 @@ def main():
     c_imi = imi_contributions(paths["dynamic"], rm, parts)
     allm = pd.DataFrame({"MSCI PERT": rm[PERT], "GIC PERT dynamic": rep_dyn.reindex(months),
                          "GIC PERT static": rep_sta, "MSCI World IMI": rm[WORLD_IMI]}).loc[START:]
-    allm.to_csv(OUT / "world_monthly.csv")  # full history; dynamic is empty before its first review
+    allm.to_csv(out / "world_monthly.csv")  # full history; dynamic is empty before its first review
     series = allm.loc[common]
 
     print(f"Sample: {common[0].date()} .. {common[-1].date()} ({len(common)} months). "
@@ -175,35 +185,38 @@ def main():
     yearly = yearly[series.groupby(series.index.year).size() == 12]
     yearly["PERT - IMI"] = yearly["MSCI PERT"] - yearly["MSCI World IMI"]
     yearly["PERT - GIC dyn"] = yearly["MSCI PERT"] - yearly["GIC PERT dynamic"]
-    yearly.to_csv(OUT / "world_yearly.csv")
+    yearly.to_csv(out / "world_yearly.csv")
     print("\nCalendar-year returns, %")
     print((yearly * 100).round(1).to_string())
 
     yrs = len(common) / 12
     att = pd.DataFrame({"MSCI PERT": c_pert.sum() / yrs, "GIC PERT dynamic": c_gic.sum() / yrs,
                         "MSCI World IMI": c_imi.sum() / yrs}).T * 100
-    att.to_csv(OUT / "world_attribution.csv")
+    att.to_csv(out / "world_attribution.csv")
     print("\nWorld attribution, % per year (sum of monthly contributions / years). PERT uses the dynamic GIC PERT weights,")
     print("so its residual is the unexplained part; the replica's residual is zero by construction.")
     print(att.round(2).to_string())
 
     # bridge: PERT - World IMI
     W = paths["dynamic"]
-    core = {r: bm[r]["core"].reindex(common) for r in REGIONAL_IMI}
-    pert_core = sum(W[("pert_cw", j)] * core[j.split("_")[0]] for j in fam)
-    imi_core = sum(W[("imi_cw", r)] * core[r] for r in REGIONAL_IMI)
-    exposure = sum(W[("pert_cw", j)] * (W[(j, "core")] - 1) * core[j.split("_")[0]] for j in fam)
+    imi = {r: imi_blocks[r]["core"].reindex(common) for r in REGIONAL_IMI}
+    reg = {j: j.split("_")[0] for j in fam}
+    pert_core = sum(W[("pert_cw", j)] * imi[reg[j]] for j in fam)
+    imi_core = sum(W[("imi_cw", r)] * imi[r] for r in REGIONAL_IMI)
+    exposure = sum(W[("pert_cw", j)] * (W[(j, "core")] - 1) * imi[reg[j]] for j in fam)
+    sector_mix = sum(W[("pert_cw", j)] * W[(j, "core")] * (bm[j]["core"].reindex(common) - imi[reg[j]]) for j in fam)
     bridge = pd.Series({
         "MSCI PERT": rm[PERT].loc[common].sum(),
         "less MSCI World IMI": -rm[WORLD_IMI].loc[common].sum(),
         "= PERT minus IMI": (rm[PERT] - rm[WORLD_IMI]).loc[common].sum(),
         "regional mix (PERT's regional weights vs World IMI's)": (pert_core - imi_core).sum(),
         "market exposure above/below 1": exposure.sum(),
+        "sector mix (PE-matched Core minus regional IMI)": sector_mix.sum(),
         "style tilts": c_pert[TILTS].sum().sum(),
         "unexplained (PERT minus GIC PERT)": c_pert["residual"].sum(),
         "World IMI outside the three regions / fit error": -c_imi["residual"].sum(),
     }) / yrs * 100
-    bridge.to_csv(OUT / "bridge_pert_vs_imi.csv")
+    bridge.to_csv(out / "bridge_pert_vs_imi.csv")
     print("\nBridge: why PERT differs from World IMI, % per year")
     print(bridge.round(2).to_string())
 
@@ -229,7 +242,7 @@ def main():
                         ("GIC PERT static", reps["static"][j].loc[common]), ("regional IMI", rm[REGIONAL_IMI[region]].loc[common])]:
             rows.append({"component": j, "series": name, **stats(s, ref if name != "MSCI component" else None)})
     comp = pd.DataFrame(rows).set_index(["component", "series"])
-    comp.to_csv(OUT / "components.csv")
+    comp.to_csv(out / "components.csv")
     print("\nComponents: returns, % (same sample)")
     print((comp * 100).round(1).to_string())
 
