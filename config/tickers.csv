@@ -117,3 +117,10 @@ CESIEUR Index,Citi Economic Surprise Index Eurozone,macro,EME,primary,level
 CESIJPY Index,Citi Economic Surprise Index Japan,macro,PAC,primary,level
 DXY Index,US dollar index,macro,US,primary,level
 GDBR10 Index,Germany 10y Bund yield,macro,EME,primary,level (%)
+GDP CQOQ Index,US real GDP QoQ SAAR,macro,US,primary,quarterly (%); latest revised vintage (not real-time)
+GDP CYOY Index,US real GDP YoY,macro,US,primary,quarterly (%); latest revised vintage
+CPI YOY Index,US CPI YoY,macro,US,primary,monthly (%)
+CPI XYOY Index,US core CPI YoY,macro,US,primary,monthly (%)
+NAPMPMI Index,ISM Manufacturing PMI,macro,US,primary,monthly level; timely growth gauge
+EUGNEMUY Index,Euro area real GDP YoY,macro,EME,primary,quarterly (%); latest revised vintage
+ECCPEMUY Index,Euro area HICP YoY,macro,EME,primary,monthly (%)

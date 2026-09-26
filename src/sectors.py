@@ -15,7 +15,7 @@ Real Estate's return is set to Financials' before its series starts.
 """
 import pandas as pd
 
-from data import BBG, returns
+from data import panel, returns
 
 SECTORS = ["EN", "MT", "IN", "CD", "CS", "HC", "FN", "IT", "TC", "UT", "RL"]
 PREFIX = {"NA": "MXNA", "EME": "MXEU", "PAC": "MXPC"}
@@ -33,8 +33,7 @@ def parent_ticker(region):
 
 def dividend_yield():
     """Trailing 12m dividend yield (decimal), monthly, wide."""
-    df = pd.read_parquet(BBG / "dy_monthly.parquet")
-    return df.pivot(index="date", columns="ticker", values="value").sort_index() / 100
+    return panel("dy_monthly") / 100
 
 
 def accrual(tickers, index, freq):

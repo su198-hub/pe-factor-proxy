@@ -34,7 +34,7 @@ import pandas as pd
 import statsmodels.api as sm
 
 from blocks import BLOCKS, TILTS, block_returns
-from data import BBG, ROOT, pert_family, prices, returns
+from data import ROOT, panel, pert_family, prices, returns
 from sectors import NET, parent_ticker
 from style_decomp import full_sample
 
@@ -55,16 +55,11 @@ MACRO = {
 }
 
 
-def monthly_field(name):
-    df = pd.read_parquet(BBG / f"{name}_monthly.parquet")
-    return df.pivot(index="date", columns="ticker", values="value").sort_index()
-
-
 def market_split(region, r):
     """Monthly split of the standard regional index's USD net return, plus the IMI gap."""
     px_t, net_t = parent_ticker(region), NET[region]
     px = prices("monthly")[px_t]
-    pe = monthly_field("pe")[px_t].reindex(px.index).ffill()
+    pe = panel("pe_monthly")[px_t].reindex(px.index).ffill()
     r_px, r_net, r_loc = r[px_t], r[net_t], r[LOCAL[region]]
     l_px = np.log1p(r_px)
     l_pe = np.log(pe).diff().reindex(r.index)
