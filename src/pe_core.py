@@ -18,6 +18,9 @@ Variants (the `core` argument):
                 MSCI's own PE universe snapshot (Rethinking Access to Private Equity, Oct
                 2025, data/msci/, all strategies per region). CA supplies the history, MSCI
                 the level. Sectors MSCI does not list keep their CA weight.
+    "gic"       the GIC PERT choice: "ca_msci" for North America and Europe & Middle East,
+                plain IMI for Pacific (CA's ex US weights are mostly European and fit Pacific
+                worse than the plain market; Pacific is 2-5% of PERT)
 
 Mapping of CA series to components: US PE -> NA buyout, US VC -> NA VC, developed ex US
 PE / VC (combined PE/VC before 2024) -> Europe & Middle East and Pacific.
@@ -41,7 +44,8 @@ SRC = {"NA_BO": ("US", "PE"), "NA_VC": ("US", "VC"), "EME_BO": ("XUS", "PE"),
        "EME_VC": ("XUS", "VC"), "PAC_BO": ("XUS", "PE"), "PAC_VC": ("XUS", "VC")}
 MSCI_SNAPSHOT = ROOT / "data" / "msci" / "pe_fund_sector_weights_2025-08.csv"
 SNAPSHOT_DATE = "2025-08-29"
-VARIANTS = ["imi", "ca", "ca_msci"]
+VARIANTS = ["imi", "ca", "ca_msci", "gic"]
+IMI_CORE_REGIONS = {"gic": {"PAC"}}  # regions kept on the plain IMI Core under each variant
 assert SECTORS == GICS
 
 
@@ -91,7 +95,7 @@ def core_weights(core="ca", freq="weekly"):
     """{component: DataFrame[date x GICS]} of Core sector weights on the `freq` return dates."""
     mw = market_sector_weights(freq)
     ca = _ca_weights(mw)
-    if core == "ca_msci":
+    if core in ("ca_msci", "gic"):
         adj = _msci_adjustment(ca, freq)
         ca = {c: (w * adj[c.split("_")[0]]).div((w * adj[c.split("_")[0]]).sum(axis=1), axis=0) for c, w in ca.items()}
     idx = returns(freq).index
@@ -119,6 +123,9 @@ def component_blocks(core="imi", freq="weekly"):
     out = {}
     for comp in SRC:
         region = comp.split("_")[0]
+        if region in IMI_CORE_REGIONS.get(core, set()):
+            out[comp] = base[region]
+            continue
         rd = defs[defs["region"] == region]
         imi_t = rd.loc[rd["block"] == "core", "long"].iloc[0]
         b = base[region].copy()

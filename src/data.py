@@ -1,4 +1,5 @@
 """Load cached Bloomberg data as wide price and return panels."""
+from functools import lru_cache
 from pathlib import Path
 
 import pandas as pd
@@ -12,6 +13,12 @@ def registry():
 
 
 def panel(name):
+    """Wide panel from a cached dataset (a fresh copy; the parquet is read once per process)."""
+    return _panel(name).copy()
+
+
+@lru_cache(maxsize=None)
+def _panel(name):
     """Wide panel from a cached dataset (e.g. "px_monthly"): index=date, columns=ticker.
 
     Monthly data is stamped on each month's calendar end. Bloomberg dates index prices on

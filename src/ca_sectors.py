@@ -207,23 +207,41 @@ def quarterly(market_weights, start="2006-12-31", end=None):
     market_weights: {"US": Series, "XUS": Series} (GICS -> weight) of the public market used to
     split "Other" across the sectors CA does not name.
     Weights are interpolated linearly between observations, held at the earliest one before
-    it (end-2007 US, end-2010 ex US) and at the latest one after. Ex US uses the separate PE
-    or VC index where published and the combined PE/VC index otherwise.
+    it (end-2007 US, end-2010 ex US) and at the latest one after.
+
+    Ex US strategy split: CA published one combined PE/VC index until 2023 and separate PE and
+    VC indexes from 2024. Before 2024 each strategy's weights are the combined index times
+    that strategy's sector tilt (strategy / combined, per sector) at the splice, renormalised,
+    so ex US VC keeps its much larger IT weight throughout rather than inheriting the PE mix.
     """
     ca = load()
     ca = ca[ca["series"] == "CA"]
     end = end or ca["asof"].max()
     qidx = pd.date_range(start, end, freq="QE")
+
+    def gics_frame(sub, region):
+        wide = sub.pivot(index="asof", columns="label", values="weight")
+        return pd.DataFrame({d: to_gics(r.dropna(), market_weights[region]) for d, r in wide.iterrows()}).T
+
     out = {}
     for region in ["US", "XUS"]:
         for strat in ["PE", "VC"]:
-            sub = ca[(ca["region"] == region) & (ca["strategy"].isin([strat, "PEVC"]))]
-            if sub.empty:
+            own = ca[(ca["region"] == region) & (ca["strategy"] == strat)]
+            comb = ca[(ca["region"] == region) & (ca["strategy"] == "PEVC")]
+            if own.empty and comb.empty:
                 continue
-            sub = sub.assign(pri=(sub["strategy"] == strat).astype(int)).sort_values("pri")
-            sub = sub.drop_duplicates(["asof", "label"], keep="last")
-            wide = sub.pivot(index="asof", columns="label", values="weight")
-            g = pd.DataFrame({d: to_gics(r.dropna(), market_weights[region]) for d, r in wide.iterrows()}).T
+            g = gics_frame(own, region) if not own.empty else None
+            if not comb.empty:
+                c = gics_frame(comb, region)
+                if g is None:
+                    g = c
+                else:
+                    first = g.index[0]
+                    prior = c.loc[:first]
+                    if not prior.empty:
+                        tilt = (g.iloc[0] / prior.iloc[-1].where(prior.iloc[-1] > 0)).clip(0.2, 5).fillna(1.0)
+                        pre = c.loc[c.index < first].mul(tilt, axis=1)
+                        g = pd.concat([pre.div(pre.sum(axis=1), axis=0), g])
             g = g.reindex(g.index.union(qidx)).interpolate(method="time").ffill().bfill().reindex(qidx)
             out[(region, strat)] = g
     return out

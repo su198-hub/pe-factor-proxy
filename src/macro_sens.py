@@ -24,32 +24,36 @@ quarters and a handful of independent cycles; US drivers applied to all regions.
 These are descriptive co-movements for stress testing, not causal estimates and not
 inputs to expected returns (those come from the structural build, brief section 7.3).
 
-Needs output/replica/world_monthly.csv (run replica.py first).
-Output: output/macro_sens/.
+Needs the replica's world_monthly.csv for the chosen Core (run replica.py --core X first).
+Output: output/macro_sens/ (IMI Core) or output/macro_sens_{core}/.
 """
+import argparse
+
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 
 from attribution import MACRO, macro_changes, sensitivities
-from blocks import BLOCKS, block_returns
+from blocks import BLOCKS
 from data import ROOT, pert_family, prices, returns
+from pe_core import VARIANTS, component_blocks
 
 OUT = ROOT / "output" / "macro_sens"
 START = "2006-12-01"
 LAGS = range(-4, 5)
 
 
-def load_series():
-    """Monthly returns: World series, six components, NA and EME blocks."""
+def load_series(core):
+    """Monthly returns: World series, six components, and GIC PERT's NA buyout / VC blocks."""
     rm = returns("monthly")
-    world = pd.read_csv(ROOT / "output" / "replica" / "world_monthly.csv", index_col=0, parse_dates=True)
+    rep = ROOT / "output" / ("replica" if core == "imi" else f"replica_{core}") / "world_monthly.csv"
+    world = pd.read_csv(rep, index_col=0, parse_dates=True)
     # static replica: covers the full period incl. the GFC (dynamic starts Dec 2008)
     s = {k: world[k] for k in ["MSCI PERT", "GIC PERT static", "MSCI World IMI"]}
     s.update({c: rm[t["net"]] for c, t in pert_family().items()})
-    blocks = block_returns("monthly")[0]
-    for region in ["NA", "EME"]:
-        s.update({f"{region} {b}": blocks[region][b] for b in BLOCKS})
+    blocks = component_blocks(core, "monthly")
+    for comp in ["NA_BO", "NA_VC"]:
+        s.update({f"{comp} {b}": blocks[comp][b] for b in BLOCKS})
     return pd.DataFrame(s).loc[START:]
 
 
@@ -103,17 +107,24 @@ def regimes(qr, econ):
 
 
 def main():
-    OUT.mkdir(parents=True, exist_ok=True)
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--core", choices=VARIANTS, default="gic")
+    core = ap.parse_args().core
+    out = OUT if core == "imi" else OUT.parent / f"macro_sens_{core}"
+    out.mkdir(parents=True, exist_ok=True)
     pd.set_option("display.width", 250)
     pd.set_option("display.float_format", "{:+.2f}".format)
-    m = load_series()
+    m = load_series(core)
+    print(f"Core: {core}")
     rm = returns("monthly")
 
     # A. market-priced drivers, monthly
     X = macro_changes(rm)
     world = ["MSCI PERT", "GIC PERT static", "MSCI World IMI"]
-    sens = sensitivities({k: m[k] for k in world}, X)
-    sens.to_csv(OUT / "market_drivers_world.csv")
+    world_dyn = pd.read_csv(ROOT / "output" / ("replica" if core == "imi" else f"replica_{core}") / "world_monthly.csv",
+                            index_col=0, parse_dates=True)["GIC PERT dynamic"]
+    sens = sensitivities({**{k: m[k] for k in world}, "GIC PERT dynamic (from Dec 2008)": world_dyn}, X)
+    sens.to_csv(out / "market_drivers_world.csv")
     print("A. Market-priced drivers: % return per shock, same month (HAC t). Shocks: "
           + "; ".join(f"{k} = {v[2]}" for k, v in MACRO.items()))
     print(pd.DataFrame({k: [f"{b * 100:+.1f} ({t:+.1f})" for b, t in zip(sens[k], sens[f't_{k}'])] for k in MACRO},
@@ -123,14 +134,14 @@ def main():
     qr = quarterly(m)
     econ = econ_quarterly()
     qr, econ = qr.loc[qr.index.intersection(econ.index)], econ
-    show = world + ["NA_BO", "NA_VC", "EME_BO", "EME_VC", "NA core", "NA growth", "NA value", "NA leverage", "NA size"]
+    show = world + ["NA_BO", "NA_VC", "EME_BO", "EME_VC"] + [f"NA_BO {b}" for b in BLOCKS] + ["NA_VC core", "NA_VC growth"]
 
     print(f"\nB1. Lead-lag: corr(return in quarter t, macro in quarter t+k). k>0: returns move before the data. "
           f"{qr.index[0].date()}..{qr.index[-1].date()}")
     for key, label in [("gdp", "US real GDP growth (QoQ annualised)"), ("d_cpi", "Change in US CPI inflation"),
                        ("d_ism", "Change in ISM manufacturing")]:
         ll = lead_lag(qr[show], econ[key])
-        ll.to_csv(OUT / f"leadlag_{key}.csv")
+        ll.to_csv(out / f"leadlag_{key}.csv")
         print(f"\n{label}")
         print(ll.round(2).to_string())
 
@@ -138,12 +149,12 @@ def main():
     for label, cols in [("same quarter: GDP growth_t, change in CPI inflation_t", ["gdp", "d_cpi"]),
                         ("forward: mean GDP growth over next 4 quarters, change in CPI inflation_t", ["gdp_fwd4", "d_cpi"])]:
         r = regress(qr[show], econ, cols)
-        r.to_csv(OUT / f"regress_{cols[0]}.csv")
+        r.to_csv(out / f"regress_{cols[0]}.csv")
         print(f"\n{label}")
         print(r.to_string())
 
     reg = regimes(qr[show], econ)
-    reg.to_csv(OUT / "regimes.csv")
+    reg.to_csv(out / "regimes.csv")
     print("\nB3. Growth / inflation regimes (quarter's change in GDP YoY and CPI YoY): average return, % annualised")
     print(reg.round(1).to_string())
 
