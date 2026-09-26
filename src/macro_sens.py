@@ -1,4 +1,4 @@
-"""Macro sensitivity of PERT, MCM-PERT, World IMI, the components and the NA blocks.
+"""Macro sensitivity of PERT, GIC PERT, World IMI, the components and the NA blocks.
 
 Two kinds of driver, each at its natural frequency:
 
@@ -45,7 +45,7 @@ def load_series():
     rm = returns("monthly")
     world = pd.read_csv(ROOT / "output" / "replica" / "world_monthly.csv", index_col=0, parse_dates=True)
     # static replica: covers the full period incl. the GFC (dynamic starts Dec 2008)
-    s = {k: world[k] for k in ["MSCI PERT", "MCM-PERT static", "MSCI World IMI"]}
+    s = {k: world[k] for k in ["MSCI PERT", "GIC PERT static", "MSCI World IMI"]}
     s.update({c: rm[t["net"]] for c, t in pert_family().items()})
     blocks = block_returns("monthly")[0]
     for region in ["NA", "EME"]:
@@ -111,7 +111,7 @@ def main():
 
     # A. market-priced drivers, monthly
     X = macro_changes(rm)
-    world = ["MSCI PERT", "MCM-PERT static", "MSCI World IMI"]
+    world = ["MSCI PERT", "GIC PERT static", "MSCI World IMI"]
     sens = sensitivities({k: m[k] for k in world}, X)
     sens.to_csv(OUT / "market_drivers_world.csv")
     print("A. Market-priced drivers: % return per shock, same month (HAC t). Shocks: "

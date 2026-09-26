@@ -1,9 +1,9 @@
-"""MCM-PERT: our factor replica of MSCI PERT, compared with MSCI PERT and MSCI World IMI.
+"""GIC PERT: our factor replica of MSCI PERT, compared with MSCI PERT and MSCI World IMI.
 
 Replica, for each component j (region x strategy) and for the World index:
 
-    MCM_j     = b_j * core_region(j) + sum_i w_ij * tilt_i,region(j)      (no intercept)
-    MCM_World = sum_j cw_j * MCM_j
+    GIC_j     = b_j * core_region(j) + sum_i w_ij * tilt_i,region(j)      (no intercept)
+    GIC_World = sum_j cw_j * GIC_j
 
 Two versions:
     static   one set of weights estimated on the full weekly sample (in-sample: uses
@@ -151,10 +151,10 @@ def main():
     series, attrib = {}, {}
     c_pert, rep_dyn = contributions(paths["dynamic"], fam, rm, bm, parts, PERT)
     _, rep_sta = contributions(paths["static"], fam, rm, bm, parts, PERT)
-    c_mcm, _ = contributions(paths["dynamic"], fam, rm, bm, parts, None)
+    c_gic, _ = contributions(paths["dynamic"], fam, rm, bm, parts, None)
     c_imi = imi_contributions(paths["dynamic"], rm, parts)
-    allm = pd.DataFrame({"MSCI PERT": rm[PERT], "MCM-PERT dynamic": rep_dyn.reindex(months),
-                         "MCM-PERT static": rep_sta, "MSCI World IMI": rm[WORLD_IMI]}).loc[START:]
+    allm = pd.DataFrame({"MSCI PERT": rm[PERT], "GIC PERT dynamic": rep_dyn.reindex(months),
+                         "GIC PERT static": rep_sta, "MSCI World IMI": rm[WORLD_IMI]}).loc[START:]
     allm.to_csv(OUT / "world_monthly.csv")  # full history; dynamic is empty before its first review
     series = allm.loc[common]
 
@@ -164,7 +164,7 @@ def main():
     print("\nWorld level: returns (monthly data, annualised; cagr = compound annual return)")
     print((st * 100).round(1).to_string())
 
-    full = pd.DataFrame({"MSCI PERT": rm[PERT], "MCM-PERT static": rep_sta, "MSCI World IMI": rm[WORLD_IMI]}).loc[START:].dropna()
+    full = pd.DataFrame({"MSCI PERT": rm[PERT], "GIC PERT static": rep_sta, "MSCI World IMI": rm[WORLD_IMI]}).loc[START:].dropna()
     for label, lo, hi in [("Full period", START, None), ("MSCI published window (PERT 9.9%, World IMI 7.2%)", START, "2024-12-31")]:
         f = full.loc[lo:hi]
         st_f = pd.DataFrame({k: stats(v, f["MSCI PERT"] if k != "MSCI PERT" else None) for k, v in f.items()}).T
@@ -174,16 +174,16 @@ def main():
     yearly = (1 + series).groupby(series.index.year).prod() - 1
     yearly = yearly[series.groupby(series.index.year).size() == 12]
     yearly["PERT - IMI"] = yearly["MSCI PERT"] - yearly["MSCI World IMI"]
-    yearly["PERT - MCM dyn"] = yearly["MSCI PERT"] - yearly["MCM-PERT dynamic"]
+    yearly["PERT - GIC dyn"] = yearly["MSCI PERT"] - yearly["GIC PERT dynamic"]
     yearly.to_csv(OUT / "world_yearly.csv")
     print("\nCalendar-year returns, %")
     print((yearly * 100).round(1).to_string())
 
     yrs = len(common) / 12
-    att = pd.DataFrame({"MSCI PERT": c_pert.sum() / yrs, "MCM-PERT dynamic": c_mcm.sum() / yrs,
+    att = pd.DataFrame({"MSCI PERT": c_pert.sum() / yrs, "GIC PERT dynamic": c_gic.sum() / yrs,
                         "MSCI World IMI": c_imi.sum() / yrs}).T * 100
     att.to_csv(OUT / "world_attribution.csv")
-    print("\nWorld attribution, % per year (sum of monthly contributions / years). PERT uses the dynamic MCM weights,")
+    print("\nWorld attribution, % per year (sum of monthly contributions / years). PERT uses the dynamic GIC PERT weights,")
     print("so its residual is the unexplained part; the replica's residual is zero by construction.")
     print(att.round(2).to_string())
 
@@ -200,7 +200,7 @@ def main():
         "regional mix (PERT's regional weights vs World IMI's)": (pert_core - imi_core).sum(),
         "market exposure above/below 1": exposure.sum(),
         "style tilts": c_pert[TILTS].sum().sum(),
-        "unexplained (PERT minus MCM-PERT)": c_pert["residual"].sum(),
+        "unexplained (PERT minus GIC PERT)": c_pert["residual"].sum(),
         "World IMI outside the three regions / fit error": -c_imi["residual"].sum(),
     }) / yrs * 100
     bridge.to_csv(OUT / "bridge_pert_vs_imi.csv")
@@ -225,8 +225,8 @@ def main():
     for j, t in fam.items():
         region = j.split("_")[0]
         ref = rm[t["net"]].loc[common]
-        for name, s in [("MSCI component", ref), ("MCM dynamic", reps["dynamic"][j].loc[common]),
-                        ("MCM static", reps["static"][j].loc[common]), ("regional IMI", rm[REGIONAL_IMI[region]].loc[common])]:
+        for name, s in [("MSCI component", ref), ("GIC PERT dynamic", reps["dynamic"][j].loc[common]),
+                        ("GIC PERT static", reps["static"][j].loc[common]), ("regional IMI", rm[REGIONAL_IMI[region]].loc[common])]:
             rows.append({"component": j, "series": name, **stats(s, ref if name != "MSCI component" else None)})
     comp = pd.DataFrame(rows).set_index(["component", "series"])
     comp.to_csv(OUT / "components.csv")
