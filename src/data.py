@@ -8,7 +8,7 @@ BBG = ROOT / "data" / "bbg"
 
 
 def registry():
-    return pd.read_csv(ROOT / "config" / "tickers.csv")
+    return pd.read_csv(ROOT / "config" / "tickers.csv", keep_default_na=False, na_values=[""])  # "NA" is a region, not missing
 
 
 def prices(freq="monthly"):

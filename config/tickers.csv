@@ -38,9 +38,9 @@ M1CXAJPA Index,MSCI Japan Enhanced Value Net USD,value,PAC,candidate,Japan only;
 M1WOEV Index,MSCI World Enhanced Value Net USD,value,World,primary,
 NU729749 Index,MSCI World Growth Target Net USD,growth_target,World,primary,starts 2016-10; no regional versions found
 M1US0008 Index,MSCI USA IMI Growth Net USD,growth_style,NA,primary,style-index proxy for Growth Target
-MGIUEURN Index,MSCI Europe IMI Growth Net USD,growth_style,EME,primary,starts 2007-06
+MGIUEURN Index,MSCI Europe IMI Growth Net USD,growth_style,EME,alt,starts 2007-06
 M1PC000G Index,MSCI Pacific Growth Net USD,growth_style,PAC,primary,
-M1USMVC$ Index,MSCI USA Minimum Volatility Net USD,minvol,NA,primary,starts 2012-08
+M1USMVC$ Index,MSCI USA Minimum Volatility Net USD,minvol,NA,alt,starts 2012-08
 M00IER$O Index,MSCI Europe Minimum Volatility Net USD,minvol,EME,primary,
 M1PCMVOL Index,MSCI Pacific Minimum Volatility (optimised in EUR) Net USD,minvol,PAC,primary,EUR-optimised variant
 M1WOMVOL Index,MSCI World Minimum Volatility Net USD,minvol,World,primary,
@@ -62,3 +62,7 @@ LF98OAS Index,Bloomberg US Corporate High Yield OAS,macro,US,primary,level (bp)
 LUACOAS Index,Bloomberg US Corporate IG OAS,macro,US,primary,level (bp)
 CESIUSD Index,Citi Economic Surprise Index US,macro,US,primary,level
 VIX Index,CBOE VIX,macro,US,primary,level
+M00IMVSO Index,MSCI USA Minimum Volatility Daily Net USD,minvol,NA,primary,history from 2000; replaces M1USMVC$ (2012)
+NDUGE15 Index,MSCI Europe Growth Net USD,growth_style,EME,primary,standard (non-IMI) growth; longer history than MGIUEURN
+NDUVE15 Index,MSCI Europe Value Net USD,value_style,EME,robustness,style value; check vs Enhanced Value
+M1PC000V Index,MSCI Pacific Value Net USD,value_style,PAC,robustness,style value

@@ -1,11 +1,12 @@
 """Pull every ticker in config/tickers.csv from Bloomberg and cache to data/bbg/.
 
 Writes one long-format parquet per frequency (ticker, date, value) plus a manifest.
-Existing caches are left alone unless --refresh is passed, so re-running during
-development costs no Bloomberg data points.
+Only tickers not already in the cache are pulled, so adding a ticker to the registry
+costs only that ticker's data points. --refresh re-pulls everything (e.g. to extend
+the history to today).
 
 Usage (project root, terminal running):
-    .venv\\Scripts\\python.exe -u src\\pull_bbg.py            # pull missing caches
+    .venv\\Scripts\\python.exe -u src\\pull_bbg.py            # pull tickers missing from the cache
     .venv\\Scripts\\python.exe -u src\\pull_bbg.py --refresh  # re-pull everything
 """
 import argparse
@@ -53,10 +54,13 @@ def main():
                 "field": "PX_LAST", "files": {}}
     for per, name in FREQS.items():
         path = OUT / f"px_{name}.parquet"
-        if path.exists() and not args.refresh:
-            print(f"{path.name} exists - skipping (use --refresh to re-pull)")
+        cached = pd.read_parquet(path) if path.exists() and not args.refresh else None
+        todo = tickers if cached is None else [t for t in tickers if t not in set(cached["ticker"])]
+        if not todo:
+            print(f"{path.name}: all {len(tickers)} tickers cached - nothing to pull")
             continue
-        df = pull(tickers, per, end)
+        new = pull(todo, per, end)
+        df = new if cached is None else pd.concat([cached, new], ignore_index=True)
         df.to_parquet(path, index=False)
         cov = df.groupby("ticker")["date"].agg(["min", "max", "count"])
         missing = sorted(set(tickers) - set(cov.index))

@@ -1,0 +1,22 @@
+region,block,long,short,backfill_long,backfill_short,notes
+NA,core,M1NAIM Index,,,,North America IMI (not sector-reweighted to PE; see README)
+NA,value,M1USEV Index,M1NAIM Index,,,USA Enhanced Value
+NA,growth,M1US0008 Index,M1NAIM Index,,,USA IMI Growth style index (proxy for Growth Target)
+NA,momentum,M1USMMT Index,M1NAIM Index,,,
+NA,minvol,M00IMVSO Index,M1NAIM Index,,,
+NA,leverage,M1NAIM Index,M1USQU Index,,,inverted Quality: market minus Quality (rough proxy for high D/E)
+NA,size,M1NASC Index,M1NAIM Index,,,
+EME,core,MIMUEURN Index,,,,Europe IMI (Middle East not included)
+EME,value,M1EUEV Index,MIMUEURN Index,M1WOEV Index,M1WOIM Index,Europe EV from 2014-12; World EV tilt before
+EME,growth,NDUGE15 Index,MIMUEURN Index,,,Europe Growth style index
+EME,momentum,M1EUMMT Index,MIMUEURN Index,,,
+EME,minvol,M00IER$O Index,MIMUEURN Index,M1WOMVOL Index,M1WOIM Index,Europe min vol from 2001-11
+EME,leverage,MIMUEURN Index,M1EUQU Index,,,inverted Quality
+EME,size,NCUDE15 Index,MIMUEURN Index,,,
+PAC,core,M1PCIM Index,,,,Pacific IMI
+PAC,value,M1WOEV Index,M1WOIM Index,,,no Pacific Enhanced Value with history; World EV tilt
+PAC,growth,M1PC000G Index,M1PCIM Index,,,Pacific Growth style index
+PAC,momentum,M1WOMOM Index,M1WOIM Index,,,no Pacific momentum with history; World tilt
+PAC,minvol,M1PCMVOL Index,M1PCIM Index,M1WOMVOL Index,M1WOIM Index,EUR-optimised variant; from 2001-11
+PAC,leverage,M1WOIM Index,M1WOQU Index,,,World inverted Quality
+PAC,size,NCUAP Index,M1PCIM Index,,,
