@@ -124,3 +124,7 @@ CPI XYOY Index,US core CPI YoY,macro,US,primary,monthly (%)
 NAPMPMI Index,ISM Manufacturing PMI,macro,US,primary,monthly level; timely growth gauge
 EUGNEMUY Index,Euro area real GDP YoY,macro,EME,primary,quarterly (%); latest revised vintage
 ECCPEMUY Index,Euro area HICP YoY,macro,EME,primary,monthly (%)
+M00JUSSO Index,MSCI USA Barra Low Leverage Daily Net TR USD,low_leverage,NA,primary,Barra leverage factor (market and book leverage + debt/assets); inverted for the leverage tilt
+M01JEU02 Index,MSCI Europe Barra Low Leverage Net USD,low_leverage,EME,primary,Barra leverage factor; inverted for the leverage tilt
+JPSFLEVU Index,J.P. Morgan ERP US IMI Low Leverage Long/Short USD,low_leverage,NA,check,long low minus short high leverage
+GSPRLEVR Index,GS US Strong vs Weak Balance Sheet,low_leverage,NA,check,long strong minus short weak balance sheet
