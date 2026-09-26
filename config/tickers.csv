@@ -1,17 +1,64 @@
-ticker,description,block,region,status,first_month,notes
-MXWOPERT Index,MSCI World PE Return Tracker (CMBR USD),pert,World,confirmed,2006-11,GTPE benchmark (FUND_BENCHMARK_PRIM)
-MXNABORU Index,MSCI North America Buyout Return Tracker (CMBR USD),pert_component,NA,confirmed,2006-11,
-MXNBOLNU Index,MSCI North America Buyout Return Tracker (Long) NET USD,pert_long,NA,confirmed,2006-11,long leg
-MXNBOSNU Index,MSCI North America Buyout Return Tracker (Short) NET USD,pert_short,NA,confirmed,2007-05,short leg
-MXEBORTU Index,MSCI Europe & Middle East Buyout Return Tracker (CMBR USD),pert_component,EME,confirmed,2006-11,
-MXEBOLNU Index,MSCI Europe & Middle East Buyout Return Tracker (Long) NET USD,pert_long,EME,found,,
-MXEBOSNU Index,MSCI Europe & Middle East Buyout Return Tracker (Short) NET USD,pert_short,EME,found,,
-MXPBORTU Index,MSCI Pacific Buyout Return Tracker (CMBR USD),pert_component,Pacific,confirmed,2006-11,
-MXPBOLNU Index,MSCI Pacific Buyout Return Tracker (Long) NET USD,pert_long,Pacific,found,,
-MXPBOSNU Index,MSCI Pacific Buyout Return Tracker (Short) NET USD,pert_short,Pacific,found,,
-MXNAVCRT Index,MSCI North America VC Return Tracker (CMBR USD),pert_component,NA,confirmed,2006-11,
-MXNVCLNU Index,MSCI North America VC Return Tracker (Long) NET USD,pert_long,NA,found,,
-MXNVCSNU Index,MSCI North America VC Return Tracker (Short) NET USD,pert_short,NA,found,,
-GTPE US Equity,Goldman Sachs MSCI World PE Return Tracker ETF,etf,World,confirmed,2025-10,inception 2025-10-23
-M1WO Index,MSCI World Net Return USD,parent,World,confirmed,1995-01,
-MP503031 Index,MSCI North America Buyout Closed-End Fund Index,private_fund,NA,no_data,,likely MSCI private capital entitlement
+ticker,description,block,region,role,notes
+MXWOPERT Index,MSCI World PE Return Tracker CMBR USD,pert,World,primary,GTPE benchmark (FUND_BENCHMARK_PRIM)
+MXNABORU Index,MSCI North America Buyout Return Tracker CMBR USD,pert,NA_BO,primary,
+MXNBOLNU Index,MSCI North America Buyout Return Tracker (Long) NET USD,pert_long,NA_BO,primary,
+MXNBOSNU Index,MSCI North America Buyout Return Tracker (Short) NET USD,pert_short,NA_BO,primary,starts 2007-05
+MXEBORTU Index,MSCI Europe & Middle East Buyout Return Tracker CMBR USD,pert,EME_BO,primary,
+MXEBOLNU Index,MSCI Europe & Middle East Buyout Return Tracker (Long) NET USD,pert_long,EME_BO,primary,
+MXEBOSNU Index,MSCI Europe & Middle East Buyout Return Tracker (Short) NET USD,pert_short,EME_BO,primary,
+MXPBORTU Index,MSCI Pacific Buyout Return Tracker CMBR USD,pert,PAC_BO,primary,
+MXPBOLNU Index,MSCI Pacific Buyout Return Tracker (Long) NET USD,pert_long,PAC_BO,primary,
+MXPBOSNU Index,MSCI Pacific Buyout Return Tracker (Short) NET USD,pert_short,PAC_BO,primary,
+MXNAVCRT Index,MSCI North America VC Return Tracker CMBR USD,pert,NA_VC,primary,
+MXNVCLNU Index,MSCI North America VC Return Tracker (Long) NET USD,pert_long,NA_VC,primary,
+MXNVCSNU Index,MSCI North America VC Return Tracker (Short) NET USD,pert_short,NA_VC,primary,
+MXEVCRTU Index,MSCI Europe & Middle East VC Return Tracker CMBR USD,pert,EME_VC,primary,
+MXEVCLNU Index,MSCI Europe & Middle East VC Return Tracker (Long) NET USD,pert_long,EME_VC,primary,
+MXEVCSNU Index,MSCI Europe & Middle East VC Return Tracker (Short) NET USD,pert_short,EME_VC,primary,
+MXPVCRTU Index,MSCI Pacific VC Return Tracker CMBR USD,pert,PAC_VC,primary,
+MXPVCLNU Index,MSCI Pacific VC Return Tracker (Long) NET USD,pert_long,PAC_VC,primary,
+MXPVCSNU Index,MSCI Pacific VC Return Tracker (Short) NET USD,pert_short,PAC_VC,primary,
+GTPE US Equity,Goldman Sachs MSCI World PE Return Tracker ETF,etf,World,primary,inception 2025-10-23
+M1NAIM Index,MSCI North America IMI Net USD,parent,NA,primary,
+MIMUEURN Index,MSCI Europe IMI Net USD,parent,EME,primary,Europe only; EME standard (M1EI) starts 2010
+M1EI Index,MSCI Europe & Middle East Net USD,parent,EME,alt,starts 2010-05
+M1PCIM Index,MSCI Pacific IMI Net USD,parent,PAC,primary,
+M1WOIM Index,MSCI World IMI Net USD,parent,World,primary,
+M1WO Index,MSCI World Net USD,parent,World,alt,
+M1USMMT Index,MSCI USA Momentum Net USD,momentum,NA,primary,
+M1CXNAS Index,MSCI World Momentum North America subset Net USD,momentum,NA,alt,starts 2017-06
+M1EUMMT Index,MSCI Europe Momentum Net USD,momentum,EME,primary,
+M1CXEME Index,MSCI World Momentum Europe & ME subset Net USD,momentum,EME,alt,starts 2017-06
+M1JPMMT Index,MSCI Japan Momentum Net USD,momentum,PAC,candidate,Japan only
+M1CXMPC Index,MSCI World Momentum Pacific subset Net USD,momentum,PAC,alt,starts 2017-06
+M1WOMOM Index,MSCI World Momentum Net USD,momentum,World,primary,
+M1USEV Index,MSCI USA Enhanced Value Net USD,value,NA,primary,
+M1EUEV Index,MSCI Europe Enhanced Value Net USD,value,EME,primary,starts 2014-12
+M1CXAJPA Index,MSCI Japan Enhanced Value Net USD,value,PAC,candidate,Japan only; starts 2015-09
+M1WOEV Index,MSCI World Enhanced Value Net USD,value,World,primary,
+NU729749 Index,MSCI World Growth Target Net USD,growth_target,World,primary,starts 2016-10; no regional versions found
+M1US0008 Index,MSCI USA IMI Growth Net USD,growth_style,NA,primary,style-index proxy for Growth Target
+MGIUEURN Index,MSCI Europe IMI Growth Net USD,growth_style,EME,primary,starts 2007-06
+M1PC000G Index,MSCI Pacific Growth Net USD,growth_style,PAC,primary,
+M1USMVC$ Index,MSCI USA Minimum Volatility Net USD,minvol,NA,primary,starts 2012-08
+M00IER$O Index,MSCI Europe Minimum Volatility Net USD,minvol,EME,primary,
+M1PCMVOL Index,MSCI Pacific Minimum Volatility (optimised in EUR) Net USD,minvol,PAC,primary,EUR-optimised variant
+M1WOMVOL Index,MSCI World Minimum Volatility Net USD,minvol,World,primary,
+NU709432 Index,MSCI World Min Vol North America subset Net USD,minvol,NA,alt,starts 2022-02
+M1USQU Index,MSCI USA Quality Net USD,quality,NA,primary,leverage-block proxy (inverted)
+M1EUQU Index,MSCI Europe Quality Net USD,quality,EME,primary,
+M1JPQLM Index,MSCI Japan Quality Mix Net USD,quality,PAC,candidate,Japan only
+M1WOQU Index,MSCI World Quality Net USD,quality,World,primary,
+NU704967 Index,MSCI World Quality North America subset Net USD,quality,NA,alt,starts 2021-05
+M1NASC Index,MSCI North America Small Cap Net USD,small_cap,NA,primary,
+NCUDE15 Index,MSCI Europe Small Cap Net USD,small_cap,EME,primary,
+NCUAP Index,MSCI Pacific Small Cap Net USD,small_cap,PAC,primary,
+M1WOSC Index,MSCI World Small Cap Net USD,small_cap,World,primary,
+USGGT10Y Index,US 10y TIPS real yield,macro,US,primary,level (%)
+USGGBE10 Index,US 10y breakeven inflation,macro,US,primary,level (%)
+USGG10YR Index,US 10y Treasury yield,macro,US,primary,level (%)
+FDTR Index,Fed funds target (upper),macro,US,primary,level (%)
+LF98OAS Index,Bloomberg US Corporate High Yield OAS,macro,US,primary,level (bp)
+LUACOAS Index,Bloomberg US Corporate IG OAS,macro,US,primary,level (bp)
+CESIUSD Index,Citi Economic Surprise Index US,macro,US,primary,level
+VIX Index,CBOE VIX,macro,US,primary,level
