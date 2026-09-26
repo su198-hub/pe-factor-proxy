@@ -1,0 +1,19 @@
+# Environment
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Data - vendor-licensed (Bloomberg/MSCI), never commit
+data/*
+interim/*
+output/*
+!data/.gitkeep
+!interim/.gitkeep
+!output/.gitkeep
+*.parquet
+*.xlsx
+*.csv
+!config/*.csv
+
+# Notebook outputs can embed data; strip before committing

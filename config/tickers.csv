@@ -1,0 +1,17 @@
+ticker,description,block,region,status,first_month,notes
+MXWOPERT Index,MSCI World PE Return Tracker (CMBR USD),pert,World,confirmed,2006-11,GTPE benchmark (FUND_BENCHMARK_PRIM)
+MXNABORU Index,MSCI North America Buyout Return Tracker (CMBR USD),pert_component,NA,confirmed,2006-11,
+MXNBOLNU Index,MSCI North America Buyout Return Tracker (Long) NET USD,pert_long,NA,confirmed,2006-11,long leg
+MXNBOSNU Index,MSCI North America Buyout Return Tracker (Short) NET USD,pert_short,NA,confirmed,2007-05,short leg
+MXEBORTU Index,MSCI Europe & Middle East Buyout Return Tracker (CMBR USD),pert_component,EME,confirmed,2006-11,
+MXEBOLNU Index,MSCI Europe & Middle East Buyout Return Tracker (Long) NET USD,pert_long,EME,found,,
+MXEBOSNU Index,MSCI Europe & Middle East Buyout Return Tracker (Short) NET USD,pert_short,EME,found,,
+MXPBORTU Index,MSCI Pacific Buyout Return Tracker (CMBR USD),pert_component,Pacific,confirmed,2006-11,
+MXPBOLNU Index,MSCI Pacific Buyout Return Tracker (Long) NET USD,pert_long,Pacific,found,,
+MXPBOSNU Index,MSCI Pacific Buyout Return Tracker (Short) NET USD,pert_short,Pacific,found,,
+MXNAVCRT Index,MSCI North America VC Return Tracker (CMBR USD),pert_component,NA,confirmed,2006-11,
+MXNVCLNU Index,MSCI North America VC Return Tracker (Long) NET USD,pert_long,NA,found,,
+MXNVCSNU Index,MSCI North America VC Return Tracker (Short) NET USD,pert_short,NA,found,,
+GTPE US Equity,Goldman Sachs MSCI World PE Return Tracker ETF,etf,World,confirmed,2025-10,inception 2025-10-23
+M1WO Index,MSCI World Net Return USD,parent,World,confirmed,1995-01,
+MP503031 Index,MSCI North America Buyout Closed-End Fund Index,private_fund,NA,no_data,,likely MSCI private capital entitlement

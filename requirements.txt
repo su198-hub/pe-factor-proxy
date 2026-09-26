@@ -1,0 +1,8 @@
+# blpapi is not on PyPI:
+#   pip install --index-url=https://blpapi.bloomberg.com/repository/releases/python/simple/ blpapi
+blpapi==3.26.9.1
+xbbg==1.4.12
+pandas==3.0.6
+numpy==2.5.3
+pyarrow==25.0.1
+openpyxl==3.1.5
