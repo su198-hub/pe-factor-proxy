@@ -1,4 +1,4 @@
-"""Macro sensitivity of PERT, GIC PERT, World IMI, the components and the NA blocks.
+"""Macro sensitivity of PERT, Proxy PERT, World IMI, the components and the NA blocks.
 
 Two kinds of driver, each at its natural frequency:
 
@@ -44,12 +44,12 @@ LAGS = range(-4, 5)
 
 
 def load_series(core):
-    """Monthly returns: World series, six components, and GIC PERT's NA buyout / VC blocks."""
+    """Monthly returns: World series, six components, and Proxy PERT's NA buyout / VC blocks."""
     rm = returns("monthly")
     rep = ROOT / "output" / ("replica" if core == "imi" else f"replica_{core}") / "world_monthly.csv"
     world = pd.read_csv(rep, index_col=0, parse_dates=True)
     # static replica: covers the full period incl. the GFC (dynamic starts Dec 2008)
-    s = {k: world[k] for k in ["MSCI PERT", "GIC PERT static", "MSCI World IMI"]}
+    s = {k: world[k] for k in ["MSCI PERT", "Proxy PERT static", "MSCI World IMI"]}
     s.update({c: rm[t["net"]] for c, t in pert_family().items()})
     blocks = component_blocks(core, "monthly")
     for comp in ["NA_BO", "NA_VC"]:
@@ -108,7 +108,7 @@ def regimes(qr, econ):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--core", choices=VARIANTS, default="gic")
+    ap.add_argument("--core", choices=VARIANTS, default="proxy")
     core = ap.parse_args().core
     out = OUT if core == "imi" else OUT.parent / f"macro_sens_{core}"
     out.mkdir(parents=True, exist_ok=True)
@@ -120,10 +120,10 @@ def main():
 
     # A. market-priced drivers, monthly
     X = macro_changes(rm)
-    world = ["MSCI PERT", "GIC PERT static", "MSCI World IMI"]
+    world = ["MSCI PERT", "Proxy PERT static", "MSCI World IMI"]
     world_dyn = pd.read_csv(ROOT / "output" / ("replica" if core == "imi" else f"replica_{core}") / "world_monthly.csv",
-                            index_col=0, parse_dates=True)["GIC PERT dynamic"]
-    sens = sensitivities({**{k: m[k] for k in world}, "GIC PERT dynamic (from Dec 2008)": world_dyn}, X)
+                            index_col=0, parse_dates=True)["Proxy PERT dynamic"]
+    sens = sensitivities({**{k: m[k] for k in world}, "Proxy PERT dynamic (from Dec 2008)": world_dyn}, X)
     sens.to_csv(out / "market_drivers_world.csv")
     print("A. Market-priced drivers: % return per shock, same month (HAC t). Shocks: "
           + "; ".join(f"{k} = {v[2]}" for k, v in MACRO.items()))

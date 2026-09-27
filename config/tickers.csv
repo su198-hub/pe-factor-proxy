@@ -128,3 +128,4 @@ M00JUSSO Index,MSCI USA Barra Low Leverage Daily Net TR USD,low_leverage,NA,prim
 M01JEU02 Index,MSCI Europe Barra Low Leverage Net USD,low_leverage,EME,primary,Barra leverage factor; inverted for the leverage tilt
 JPSFLEVU Index,J.P. Morgan ERP US IMI Low Leverage Long/Short USD,low_leverage,NA,check,long low minus short high leverage
 GSPRLEVR Index,GS US Strong vs Weak Balance Sheet,low_leverage,NA,check,long strong minus short weak balance sheet
+MXWO Index,MSCI World USD (price),parent_px,World,check,forward EPS revisions (growth expectations) for the macro analysis
