@@ -136,3 +136,72 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# ---------------------------------------------------------------------------
+# Leverage proxy diagnostic
+# ---------------------------------------------------------------------------
+AQR = {"BAB": "Betting-Against-Beta-Equity-Factors-Monthly", "QMJ": "Quality-Minus-Junk-Factors-Monthly"}
+
+
+def read_aqr(name, col="USA"):
+    d = pd.read_excel(FF / f"{AQR[name]}.xlsx", sheet_name=0, header=18)
+    d = d[pd.to_datetime(d["DATE"], errors="coerce").notna()]
+    s = pd.Series(d[col].astype(float).values, index=pd.to_datetime(d["DATE"]) + pd.offsets.MonthEnd(0), name=name)
+    return s
+
+
+def leverage_check(start="2007-01", end=None):
+    """What do the candidate leverage tilts load on? Returns by period and factor loadings."""
+    from data import returns
+    rm = returns("monthly")
+    cands = {
+        "ours: NA IMI - USA Quality": rm["M1NAIM Index"] - rm["M1USQU Index"],
+        "Barra: NA IMI - USA Barra Low Leverage": rm["M1NAIM Index"] - rm["M00JUSSO Index"],
+        "JPM: high - low leverage (L/S)": -rm["JPSFLEVU Index"],
+        "GS: weak - strong balance sheet (L/S)": -rm["GSPRLEVR Index"],
+    }
+    ff = ff_table()["US"]
+    F = pd.concat([ff[["Mkt-RF", "SMB", "HML", "Mom"]], read_aqr("QMJ"), read_aqr("BAB")], axis=1)
+    rows, load = [], []
+    for name, s in cands.items():
+        row = {"candidate": name}
+        for lab, lo, hi in PERIODS:
+            row[lab] = ann(s.loc[lo:hi].dropna())
+        rows.append(row)
+        z = pd.concat([s.rename("y"), F], axis=1).loc[start:end].dropna()
+        m = sm.OLS(z["y"], sm.add_constant(z[F.columns])).fit(cov_type="HAC", cov_kwds={"maxlags": 3})
+        load.append({"candidate": name, **{k: f"{m.params[k]:+.2f} ({m.tvalues[k]:+.1f})" for k in F.columns},
+                     "alpha %/yr": m.params["const"] * 1200, "R2": m.rsquared, "months": int(m.nobs)})
+    facs = pd.DataFrame({lab: {k: ann(F[k].loc[lo:hi].dropna()) for k in ["QMJ", "BAB"]} for lab, lo, hi in PERIODS}).T
+    return pd.DataFrame(rows).set_index("candidate"), pd.DataFrame(load).set_index("candidate"), facs
+
+
+# ---------------------------------------------------------------------------
+# Reconciliation to MSCI's published risk/return table (Rethinking Access to PE, p.14)
+# ---------------------------------------------------------------------------
+def reconcile(start="2006-12-31", end="2025-03-31"):
+    from data import returns
+    rm = returns("monthly")
+    w = pd.read_csv(ROOT / "output" / "replica_proxy" / "world_monthly.csv", index_col=0, parse_dates=True)
+    S = pd.DataFrame({"MSCI PERT": rm["MXWOPERT Index"], "Proxy PERT (fixed weights)": w["Proxy PERT static"],
+                      "Proxy PERT (rebalanced, from Dec 2008)": w["Proxy PERT dynamic"], "World IMI (net)": rm["M1WOIM Index"]})
+    S = S.loc[pd.Timestamp(start) + pd.offsets.MonthEnd(1):end]
+    end_t = S.index[-1]
+    rows = {}
+    for c in S:
+        s = S[c].dropna()
+        r = {}
+        for lab, yrs in [("1Y", 1), ("3Y", 3), ("5Y", 5), ("10Y", 10)]:
+            x = s.loc[end_t - pd.DateOffset(years=yrs) + pd.offsets.MonthEnd(0) + pd.offsets.MonthEnd(1):]
+            r[lab] = ((1 + x).prod() ** (12 / len(x)) - 1) * 100 if len(x) >= yrs * 12 - 1 else np.nan
+        r["Full"] = ((1 + s).prod() ** (12 / len(s)) - 1) * 100
+        q = (1 + s).resample("QE").prod() - 1
+        r["Risk (quarterly)"] = q.std() * 200
+        r["Risk (monthly)"] = s.std() * np.sqrt(12) * 100
+        r["Return/Risk"] = r["Full"] / r["Risk (quarterly)"]
+        wealth = (1 + s).cumprod()
+        r["Max DD"] = (wealth / wealth.cummax() - 1).min() * 100
+        r["Starts"] = str(s.index[0].date())
+        rows[c] = r
+    return pd.DataFrame(rows).T
