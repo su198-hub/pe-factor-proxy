@@ -4,14 +4,14 @@ NA,value,M1USEV Index,M1NAIM Index,,,USA Enhanced Value
 NA,growth,M1US0008 Index,M1NAIM Index,,,USA IMI Growth style index (proxy for Growth Target)
 NA,momentum,M1USMMT Index,M1NAIM Index,,,
 NA,minvol,M00IMVSO Index,M1NAIM Index,,,
-NA,leverage,M1NAIM Index,M1USQU Index,,,inverted Quality: market minus Quality (rough proxy for high D/E)
+NA,leverage,,JPSFLEVU Index,,,J.P. Morgan US IMI high-minus-low leverage (negated low-minus-high long/short index); replaced market minus Quality (which loads on junk; see style_check.leverage_check)
 NA,size,M1NASC Index,M1NAIM Index,,,
 EME,core,MIMUEURN Index,,,,Europe IMI (Middle East not included)
 EME,value,M1EUEV Index,MIMUEURN Index,M1WOEV Index,M1WOIM Index,Europe EV from 2014-12; World EV tilt before
 EME,growth,NDUGE15 Index,MIMUEURN Index,,,Europe Growth style index
 EME,momentum,M1EUMMT Index,MIMUEURN Index,,,
 EME,minvol,M00IER$O Index,MIMUEURN Index,M1WOMVOL Index,M1WOIM Index,Europe min vol from 2001-11
-EME,leverage,MIMUEURN Index,M1EUQU Index,,,inverted Quality
+EME,leverage,MIMUEURN Index,M01JEU02 Index,,,market minus MSCI Europe Barra Low Leverage; replaced market minus Quality
 EME,size,NCUDE15 Index,MIMUEURN Index,,,
 PAC,core,M1PCIM Index,,,,Pacific IMI
 PAC,value,M1WOEV Index,M1WOIM Index,,,no Pacific Enhanced Value with history; World EV tilt

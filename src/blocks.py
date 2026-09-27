@@ -2,6 +2,8 @@
 
 core  = regional parent index return
 tilt  = long index return - short index return   (a self-financing style tilt)
+        With no long index, the short column holds a long/short index and the tilt is its
+        negative (e.g. J.P. Morgan low-minus-high leverage -> high-minus-low leverage).
 
 Where a block has a backfill pair, dates before the primary pair starts use the
 backfill tilt instead. The splice date is reported so it is never silent.
@@ -28,7 +30,7 @@ def block_returns(freq="weekly"):
             if d["block"] == "core":
                 cols["core"] = r[d["long"]]
                 continue
-            s = r[d["long"]] - r[d["short"]]
+            s = (r[d["long"]] if pd.notna(d["long"]) else 0.0) - r[d["short"]]
             if pd.notna(d["backfill_long"]):
                 back = r[d["backfill_long"]] - r[d["backfill_short"]]
                 start = s.first_valid_index()
