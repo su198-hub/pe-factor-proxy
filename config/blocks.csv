@@ -1,7 +1,7 @@
 region,block,long,short,backfill_long,backfill_short,notes
 NA,core,M1NAIM Index,,,,North America IMI (not sector-reweighted to PE; see README)
 NA,value,M1USEV Index,M1NAIM Index,,,USA Enhanced Value
-NA,growth,M1US0008 Index,M1NAIM Index,,,USA IMI Growth style index (proxy for Growth Target)
+NA,growth,NU729749 Index,M1WOIM Index,M1US0008 Index,M1NAIM Index,MSCI World Growth Target minus World IMI from 2016-10 (MSCI's growth methodology; no regional version); USA IMI Growth style minus PE Core before
 NA,momentum,M1USMMT Index,M1NAIM Index,,,
 NA,minvol,M00IMVSO Index,M1NAIM Index,,,
 NA,leverage,,JPSFLEVU Index,,,J.P. Morgan US IMI high-minus-low leverage (negated low-minus-high long/short index); replaced market minus Quality (which loads on junk; see style_check.leverage_check)

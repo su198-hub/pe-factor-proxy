@@ -131,12 +131,16 @@ def component_blocks(core="imi", freq="weekly"):
         b = base[region].copy()
         b["core"] = pe[comp]
         for _, d in rd[rd["block"] != "core"].iterrows():
-            if d["short"] != imi_t:
-                continue  # leverage proxy (IMI - Quality): not a "style minus Core" spread
-            primary = r[d["long"]] - r[d["short"]]
-            start = primary.first_valid_index()
-            repointed = r[d["long"]] - pe[comp]
-            b[d["block"]] = repointed.where(repointed.index >= start, b[d["block"]])  # backfill untouched
+            # "style minus Core" legs are re-pointed from the regional IMI to the PE Core; self-contained
+            # spreads (leverage long/short, World Growth Target - World IMI) are left as they are.
+            long_ = r[d["long"]] if pd.notna(d["long"]) else 0.0
+            primary = long_ - (pe[comp] if d["short"] == imi_t else r[d["short"]])
+            start = (long_ - r[d["short"]]).first_valid_index() if pd.notna(d["long"]) else r[d["short"]].first_valid_index()
+            if pd.notna(d["backfill_long"]):
+                back = r[d["backfill_long"]] - (pe[comp] if d["backfill_short"] == imi_t else r[d["backfill_short"]])
+            else:
+                back = b[d["block"]]
+            b[d["block"]] = primary.where(primary.index >= start, back)
         out[comp] = b[BLOCKS]
     return out
 
